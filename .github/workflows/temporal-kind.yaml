@@ -16,6 +16,7 @@ jobs:
           go-version: '1.25.x'
       - name: Install tools
         run: |
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
           if ! command -v helm >/dev/null 2>&1; then
             curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
           fi
@@ -35,6 +36,7 @@ jobs:
           go-version: '1.25.x'
       - name: Install tools
         run: |
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
           if ! command -v helm >/dev/null 2>&1; then
             curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
           fi
