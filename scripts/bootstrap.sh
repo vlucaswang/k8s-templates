@@ -22,7 +22,13 @@ fi
 kubectl config use-context "kind-${CLUSTER_NAME}" >/dev/null
 
 if [[ "${START_CLOUD_PROVIDER_KIND:-true}" == "true" ]]; then
-  "${ROOT_DIR}/scripts/cloud-provider-kind.sh"
+  if ! "${ROOT_DIR}/scripts/cloud-provider-kind.sh"; then
+    if [[ "${REQUIRE_CLOUD_PROVIDER_KIND:-false}" == "true" ]]; then
+      exit 1
+    fi
+    echo "cloud-provider-kind did not start; continuing bootstrap without LoadBalancer port mapping." >&2
+    echo "Run cloud-provider-kind with sudo, or use: SKIP_LOADBALANCER_WAIT=true make wait && make port-forward" >&2
+  fi
 fi
 
 helm repo add cilium https://helm.cilium.io >/dev/null

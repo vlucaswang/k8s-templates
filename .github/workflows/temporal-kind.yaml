@@ -44,6 +44,7 @@ jobs:
         env:
           REPO_URL: https://github.com/${{ github.repository }}.git
           REPO_REVISION: ${{ github.sha }}
+          REQUIRE_CLOUD_PROVIDER_KIND: "true"
         run: make bootstrap
       - name: Wait for workloads
         run: make wait

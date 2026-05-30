@@ -55,6 +55,7 @@ The command prints localhost mappings for:
 If cloud-provider-kind cannot run locally because sudo is unavailable, use:
 
 ```sh
+SKIP_LOADBALANCER_WAIT=true make wait
 make port-forward
 ```
 
