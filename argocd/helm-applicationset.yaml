@@ -28,7 +28,7 @@ spec:
             namespace: cnpg-system
             repoURL: https://cloudnative-pg.github.io/charts
             chart: cloudnative-pg
-            targetRevision: 0.25.0
+            targetRevision: 0.28.0
             releaseName: cnpg
             valuesFile: cnpg-operator.yaml
           - name: temporal
