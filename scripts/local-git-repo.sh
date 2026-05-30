@@ -28,16 +28,19 @@ touch "${bare_repo}/git-daemon-export-ok"
 
 if [[ -f "${pid_file}" ]] && kill -0 "$(cat "${pid_file}")" >/dev/null 2>&1; then
   kill "$(cat "${pid_file}")"
+  rm -f "${pid_file}"
 fi
 
-nohup git daemon \
+git daemon \
   --reuseaddr \
   --base-path="${ROOT_DIR}/tmp" \
   --export-all \
   --listen=0.0.0.0 \
   --port="${port}" \
+  --pid-file="${pid_file}" \
+  --detach \
+  --log-destination=stderr \
   --informative-errors \
-  --verbose >"${log_file}" 2>&1 &
-echo "$!" > "${pid_file}"
+  --verbose >"${log_file}" 2>&1
 
 echo "git://${host_name}:${port}/${repo_name}"
