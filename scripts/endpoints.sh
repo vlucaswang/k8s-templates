@@ -38,4 +38,5 @@ echo "  redis-cli -h localhost -p 6379 ping"
 
 echo
 echo "cloud-provider-kind note:"
-echo "  Start cloud-provider-kind with -enable-lb-port-mapping on macOS/Windows to expose LoadBalancer services on localhost."
+echo "  Start cloud-provider-kind with --enable-lb-port-mapping on macOS/Windows to expose LoadBalancer services on localhost."
+echo "  If sudo is unavailable, run: make port-forward"

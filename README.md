@@ -52,6 +52,14 @@ The command prints localhost mappings for:
 - Argo CD through port-forward
 - Redis through port-forward
 
+If cloud-provider-kind cannot run locally because sudo is unavailable, use:
+
+```sh
+make port-forward
+```
+
+This exposes Temporal frontend on `localhost:7233`, Temporal UI on `localhost:8080`, Argo CD on `localhost:8443`, Redis on `localhost:6379`, and Postgres on `localhost:5432`.
+
 ## Cleanup
 
 ```sh
