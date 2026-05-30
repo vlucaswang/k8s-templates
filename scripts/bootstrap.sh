@@ -38,7 +38,8 @@ kubectl -n kube-system rollout status ds/cilium --timeout=10m
 kubectl -n kube-system rollout status deploy/cilium-operator --timeout=10m
 
 kubectl create namespace "${ARGOCD_NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -n "${ARGOCD_NAMESPACE}" -f "https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml"
+kubectl apply --server-side --force-conflicts -n "${ARGOCD_NAMESPACE}" \
+  -f "https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml"
 kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-applicationset-controller --timeout=10m
 kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-repo-server --timeout=10m
 kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-server --timeout=10m
