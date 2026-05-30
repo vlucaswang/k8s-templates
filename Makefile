@@ -5,12 +5,13 @@ SHELL := /usr/bin/env bash
 include versions.env
 export
 
-.PHONY: help bootstrap cloud-provider-kind wait endpoints smoke validate delete status
+.PHONY: help bootstrap cloud-provider-kind local-git-repo wait endpoints smoke validate delete status
 
 help:
 	@printf "Targets:\n"
 	@printf "  make bootstrap  Create kind, install Cilium and Argo CD, apply ApplicationSets\n"
 	@printf "  make cloud-provider-kind  Start cloud-provider-kind for LoadBalancer services\n"
+	@printf "  make local-git-repo  Serve this repository for local Argo CD bootstrap\n"
 	@printf "  make wait       Wait for core workloads\n"
 	@printf "  make endpoints  Print localhost access commands and mappings\n"
 	@printf "  make smoke      Run Temporal smoke checks\n"
@@ -22,6 +23,9 @@ bootstrap:
 
 cloud-provider-kind:
 	./scripts/cloud-provider-kind.sh
+
+local-git-repo:
+	./scripts/local-git-repo.sh
 
 wait:
 	./scripts/wait.sh

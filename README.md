@@ -35,6 +35,8 @@ make smoke
 
 The bootstrap flow creates the kind cluster, installs Cilium, installs Argo CD, and applies the root ApplicationSets. Argo CD then reconciles the kgateway, CloudNativePG, Redis, Temporal, and edge-route manifests under `gitops/`.
 
+If no `REPO_URL` is configured and the checkout has no `origin` remote, bootstrap starts a local read-only Git daemon and points Argo CD at `git://host.docker.internal/temporal-kind-gitops.git`. Set `LOCAL_GIT_HOST` if your kind nodes need a different host address.
+
 ## Local Access
 
 Use:

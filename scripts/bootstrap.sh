@@ -48,9 +48,7 @@ if [[ "${REPO_URL}" == *"REPLACE_ME"* ]]; then
   elif git -C "${ROOT_DIR}" remote get-url origin >/dev/null 2>&1; then
     REPO_URL="$(git -C "${ROOT_DIR}" remote get-url origin)"
   else
-    echo "REPO_URL is not set and no git origin remote exists." >&2
-    echo "Set REPO_URL to a URL Argo CD can fetch, then rerun make bootstrap." >&2
-    exit 1
+    REPO_URL="$("${ROOT_DIR}/scripts/local-git-repo.sh")"
   fi
 fi
 
