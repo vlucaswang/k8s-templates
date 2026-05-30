@@ -39,9 +39,3 @@ server:
             maxConnLifetime: 1h
 web:
   enabled: true
-prometheus:
-  enabled: false
-grafana:
-  enabled: false
-elasticsearch:
-  enabled: false

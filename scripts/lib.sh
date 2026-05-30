@@ -33,3 +33,13 @@ use_public_docker_config() {
     printf '{}\n' > "${DOCKER_CONFIG}/config.json"
   fi
 }
+
+use_public_helm_config() {
+  if [[ -z "${HELM_REGISTRY_CONFIG:-}" ]]; then
+    export HELM_REGISTRY_CONFIG="${ROOT_DIR}/tmp/helm-registry/config.json"
+    mkdir -p "$(dirname "${HELM_REGISTRY_CONFIG}")"
+    if [[ ! -f "${HELM_REGISTRY_CONFIG}" ]]; then
+      printf '{}\n' > "${HELM_REGISTRY_CONFIG}"
+    fi
+  fi
+}

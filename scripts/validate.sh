@@ -6,6 +6,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib.sh"
 
 load_versions
+use_public_docker_config
+use_public_helm_config
 
 if command -v ruby >/dev/null 2>&1; then
   yaml_files=()
@@ -31,11 +33,31 @@ fi
 
 if command -v helm >/dev/null 2>&1; then
   helm repo add cilium https://helm.cilium.io >/dev/null
+  helm repo add cnpg https://cloudnative-pg.github.io/charts >/dev/null
+  helm repo add temporal https://go.temporal.io/helm-charts >/dev/null
   helm repo update cilium >/dev/null
+  helm repo update cnpg >/dev/null
+  helm repo update temporal >/dev/null
   helm template cilium cilium/cilium \
     --namespace kube-system \
     --version "${CILIUM_VERSION}" \
     --values "${ROOT_DIR}/bootstrap/cilium-values.yaml" >/dev/null
+  helm template cnpg cnpg/cloudnative-pg \
+    --namespace cnpg-system \
+    --version "${CLOUDNATIVEPG_CHART_VERSION}" \
+    --values "${ROOT_DIR}/gitops/helm-values/cnpg-operator.yaml" >/dev/null
+  helm template temporal temporal/temporal \
+    --namespace temporal \
+    --version "${TEMPORAL_CHART_VERSION}" \
+    --values "${ROOT_DIR}/gitops/helm-values/temporal.yaml" >/dev/null
+  helm template kgateway-crds oci://cr.kgateway.dev/kgateway-dev/charts/kgateway-crds \
+    --namespace kgateway-system \
+    --version "${KGATEWAY_VERSION}" \
+    --values "${ROOT_DIR}/gitops/helm-values/kgateway-crds.yaml" >/dev/null
+  helm template kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
+    --namespace kgateway-system \
+    --version "${KGATEWAY_VERSION}" \
+    --values "${ROOT_DIR}/gitops/helm-values/kgateway.yaml" >/dev/null
 else
   echo "helm not found; skipping Helm values validation"
 fi
