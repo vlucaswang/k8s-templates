@@ -18,7 +18,7 @@ if [[ -f "${pid_file}" ]] && kill -0 "$(cat "${pid_file}")" >/dev/null 2>&1; the
   exit 0
 fi
 
-nohup cloud-provider-kind -enable-lb-port-mapping >"${log_file}" 2>&1 &
+nohup cloud-provider-kind --enable-lb-port-mapping >"${log_file}" 2>&1 &
 echo "$!" > "${pid_file}"
 echo "cloud-provider-kind started with pid $(cat "${pid_file}")"
 echo "logs: ${log_file}"
