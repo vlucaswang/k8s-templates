@@ -1,0 +1,68 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: temporal-kind-helm
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+  generators:
+    - list:
+        elements:
+          - name: kgateway-crds
+            namespace: kgateway-system
+            repoURL: oci://cr.kgateway.dev/kgateway-dev/charts
+            chart: kgateway-crds
+            targetRevision: v2.2.0
+            releaseName: kgateway-crds
+            valuesFile: kgateway-crds.yaml
+          - name: kgateway
+            namespace: kgateway-system
+            repoURL: oci://cr.kgateway.dev/kgateway-dev/charts
+            chart: kgateway
+            targetRevision: v2.2.0
+            releaseName: kgateway
+            valuesFile: kgateway.yaml
+          - name: cnpg-operator
+            namespace: cnpg-system
+            repoURL: https://cloudnative-pg.github.io/charts
+            chart: cloudnative-pg
+            targetRevision: 0.25.0
+            releaseName: cnpg
+            valuesFile: cnpg-operator.yaml
+          - name: temporal
+            namespace: temporal
+            repoURL: https://go.temporal.io/helm-charts
+            chart: temporal
+            targetRevision: 1.2.0
+            releaseName: temporal
+            valuesFile: temporal.yaml
+  template:
+    metadata:
+      name: '{{ .name }}'
+      labels:
+        app.kubernetes.io/part-of: temporal-kind
+    spec:
+      project: temporal-kind
+      sources:
+        - repoURL: '{{ .repoURL }}'
+          chart: '{{ .chart }}'
+          targetRevision: '{{ .targetRevision }}'
+          helm:
+            releaseName: '{{ .releaseName }}'
+            valueFiles:
+              - $values/gitops/helm-values/{{ .valuesFile }}
+        - repoURL: REPO_URL_PLACEHOLDER
+          targetRevision: REPO_REVISION_PLACEHOLDER
+          ref: values
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .namespace }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

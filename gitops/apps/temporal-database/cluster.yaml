@@ -1,0 +1,19 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+  namespace: temporal
+  labels:
+    app.kubernetes.io/part-of: temporal-kind
+spec:
+  instances: 1
+  storage:
+    size: 1Gi
+  bootstrap:
+    initdb:
+      database: temporal
+      owner: temporal
+      secret:
+        name: temporal-db
+      postInitSQL:
+        - CREATE DATABASE temporal_visibility OWNER temporal;

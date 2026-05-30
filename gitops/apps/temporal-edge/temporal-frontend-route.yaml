@@ -1,0 +1,18 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: GRPCRoute
+metadata:
+  name: temporal-frontend
+  namespace: temporal
+  labels:
+    app.kubernetes.io/part-of: temporal-kind
+spec:
+  parentRefs:
+    - name: temporal-local
+      namespace: kgateway-system
+      sectionName: temporal-frontend
+  hostnames:
+    - temporal.localhost
+  rules:
+    - backendRefs:
+        - name: temporal-frontend
+          port: 7233

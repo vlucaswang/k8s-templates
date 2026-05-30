@@ -20,6 +20,10 @@ fi
 
 kubectl config use-context "kind-${CLUSTER_NAME}" >/dev/null
 
+if [[ "${START_CLOUD_PROVIDER_KIND:-true}" == "true" ]]; then
+  "${ROOT_DIR}/scripts/cloud-provider-kind.sh"
+fi
+
 helm repo add cilium https://helm.cilium.io >/dev/null
 helm repo update cilium >/dev/null
 helm upgrade --install cilium cilium/cilium \
@@ -38,6 +42,27 @@ kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-applicationset-con
 kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-repo-server --timeout=10m
 kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-server --timeout=10m
 
-kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${ROOT_DIR}/argocd/"
+if [[ "${REPO_URL}" == *"REPLACE_ME"* ]]; then
+  if [[ -n "${GITHUB_REPOSITORY:-}" ]]; then
+    REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
+  elif git -C "${ROOT_DIR}" remote get-url origin >/dev/null 2>&1; then
+    REPO_URL="$(git -C "${ROOT_DIR}" remote get-url origin)"
+  else
+    echo "REPO_URL is not set and no git origin remote exists." >&2
+    echo "Set REPO_URL to a URL Argo CD can fetch, then rerun make bootstrap." >&2
+    exit 1
+  fi
+fi
+
+rendered_argocd="$(mktemp -d)"
+trap 'rm -rf "${rendered_argocd}"' EXIT
+for file in "${ROOT_DIR}"/argocd/*.yaml; do
+  sed \
+    -e "s#REPO_URL_PLACEHOLDER#${REPO_URL}#g" \
+    -e "s#REPO_REVISION_PLACEHOLDER#${REPO_REVISION}#g" \
+    "${file}" > "${rendered_argocd}/$(basename "${file}")"
+done
+
+kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/"
 
 echo "Bootstrap submitted. Run: make wait"

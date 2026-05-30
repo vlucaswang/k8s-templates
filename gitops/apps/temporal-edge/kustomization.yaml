@@ -1,0 +1,4 @@
+resources:
+  - gateway.yaml
+  - temporal-ui-route.yaml
+  - temporal-frontend-route.yaml

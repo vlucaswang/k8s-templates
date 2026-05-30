@@ -1,0 +1,24 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: temporal-local
+  namespace: kgateway-system
+  labels:
+    app.kubernetes.io/part-of: temporal-kind
+spec:
+  gatewayClassName: kgateway
+  listeners:
+    - name: temporal-ui
+      hostname: temporal-ui.localhost
+      port: 8080
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: temporal-frontend
+      hostname: temporal.localhost
+      port: 7233
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All

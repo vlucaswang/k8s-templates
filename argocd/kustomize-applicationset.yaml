@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: temporal-kind-kustomize
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+  generators:
+    - list:
+        elements:
+          - name: gateway-api-crds
+            namespace: gateway-system
+            path: gitops/apps/gateway-api-crds
+          - name: temporal-database
+            namespace: temporal
+            path: gitops/apps/temporal-database
+          - name: redis
+            namespace: redis
+            path: gitops/apps/redis
+          - name: temporal-edge
+            namespace: kgateway-system
+            path: gitops/apps/temporal-edge
+  template:
+    metadata:
+      name: '{{ .name }}'
+      labels:
+        app.kubernetes.io/part-of: temporal-kind
+    spec:
+      project: temporal-kind
+      source:
+        repoURL: REPO_URL_PLACEHOLDER
+        targetRevision: REPO_REVISION_PLACEHOLDER
+        path: '{{ .path }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .namespace }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

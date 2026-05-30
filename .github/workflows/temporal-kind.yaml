@@ -1,0 +1,45 @@
+name: temporal-kind
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+      - name: Install tools
+        run: |
+          go install sigs.k8s.io/kind@v0.31.0
+          go install sigs.k8s.io/cloud-provider-kind@v0.6.0
+      - name: Validate templates
+        run: make validate
+
+  temporal-smoke:
+    runs-on: ubuntu-latest
+    needs: validate
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+      - name: Install tools
+        run: |
+          go install sigs.k8s.io/kind@v0.31.0
+          go install sigs.k8s.io/cloud-provider-kind@v0.6.0
+      - name: Bootstrap cluster
+        env:
+          REPO_URL: https://github.com/${{ github.repository }}.git
+          REPO_REVISION: ${{ github.sha }}
+        run: make bootstrap
+      - name: Wait for workloads
+        run: make wait
+      - name: Smoke test Temporal
+        run: make smoke

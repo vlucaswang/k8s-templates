@@ -1,0 +1,3 @@
+gateway:
+  validation:
+    enabled: false
