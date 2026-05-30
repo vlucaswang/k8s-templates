@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
+# shellcheck source=scripts/lib.sh
 source "${SCRIPT_DIR}/lib.sh"
 
 load_versions
@@ -41,7 +41,7 @@ else
 fi
 
 if command -v shellcheck >/dev/null 2>&1; then
-  shellcheck "${ROOT_DIR}"/scripts/*.sh "${ROOT_DIR}"/tests/scenarios/*.sh
+  shellcheck -x "${ROOT_DIR}"/scripts/*.sh "${ROOT_DIR}"/tests/scenarios/*.sh
 else
   echo "shellcheck not found; skipping shell lint"
 fi

@@ -12,14 +12,14 @@ spec:
         elements:
           - name: kgateway-crds
             namespace: kgateway-system
-            repoURL: oci://cr.kgateway.dev/kgateway-dev/charts
+            repoURL: cr.kgateway.dev/kgateway-dev/charts
             chart: kgateway-crds
             targetRevision: v2.2.0
             releaseName: kgateway-crds
             valuesFile: kgateway-crds.yaml
           - name: kgateway
             namespace: kgateway-system
-            repoURL: oci://cr.kgateway.dev/kgateway-dev/charts
+            repoURL: cr.kgateway.dev/kgateway-dev/charts
             chart: kgateway
             targetRevision: v2.2.0
             releaseName: kgateway
