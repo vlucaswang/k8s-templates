@@ -50,7 +50,7 @@ kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-applicationset-con
 kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-repo-server --timeout=10m
 kubectl -n "${ARGOCD_NAMESPACE}" rollout status deploy/argocd-server --timeout=10m
 
-if [[ "${REPO_URL}" == *"REPLACE_ME"* ]]; then
+if [[ "${REPO_URL}" == *"vlucaswang"* ]]; then
   if [[ -n "${GITHUB_REPOSITORY:-}" ]]; then
     REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
   elif git -C "${ROOT_DIR}" remote get-url origin >/dev/null 2>&1; then
