@@ -12,6 +12,7 @@ use_public_docker_config
 mkdir -p "${ROOT_DIR}/tmp"
 pid_file="${ROOT_DIR}/tmp/cloud-provider-kind.pid"
 log_file="${ROOT_DIR}/tmp/cloud-provider-kind.log"
+cloud_provider_kind_bin="$(command -v cloud-provider-kind)"
 
 if [[ -f "${pid_file}" ]] && kill -0 "$(cat "${pid_file}")" >/dev/null 2>&1; then
   echo "cloud-provider-kind already running with pid $(cat "${pid_file}")"
@@ -21,9 +22,9 @@ fi
 start_cloud_provider_kind() {
   if [[ "${1:-}" == "sudo" ]]; then
     nohup sudo -n env "DOCKER_CONFIG=${DOCKER_CONFIG}" \
-      cloud-provider-kind --enable-lb-port-mapping >"${log_file}" 2>&1 &
+      "${cloud_provider_kind_bin}" --enable-lb-port-mapping >"${log_file}" 2>&1 &
   else
-    nohup cloud-provider-kind --enable-lb-port-mapping >"${log_file}" 2>&1 &
+    nohup "${cloud_provider_kind_bin}" --enable-lb-port-mapping >"${log_file}" 2>&1 &
   fi
   echo "$!" > "${pid_file}"
 }
