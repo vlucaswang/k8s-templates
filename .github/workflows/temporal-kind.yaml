@@ -16,6 +16,9 @@ jobs:
           go-version: '1.25.x'
       - name: Install tools
         run: |
+          if ! command -v helm >/dev/null 2>&1; then
+            curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          fi
           go install sigs.k8s.io/kind@v0.31.0
           go install sigs.k8s.io/cloud-provider-kind@v0.6.0
       - name: Validate templates
@@ -32,6 +35,9 @@ jobs:
           go-version: '1.25.x'
       - name: Install tools
         run: |
+          if ! command -v helm >/dev/null 2>&1; then
+            curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          fi
           go install sigs.k8s.io/kind@v0.31.0
           go install sigs.k8s.io/cloud-provider-kind@v0.6.0
       - name: Bootstrap cluster

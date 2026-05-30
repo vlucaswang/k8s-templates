@@ -11,6 +11,12 @@ need kubectl
 echo "Gateway services:"
 kubectl get svc -n kgateway-system -o wide || true
 
+if command -v docker >/dev/null 2>&1; then
+  echo
+  echo "LoadBalancer containers and host mappings:"
+  docker ps --filter name=kindccm --format 'table {{.Names}}\t{{.Ports}}' || true
+fi
+
 echo
 echo "Temporal UI via kgateway:"
 echo "  curl -H 'Host: temporal-ui.localhost' http://localhost:<mapped-http-port>/"
