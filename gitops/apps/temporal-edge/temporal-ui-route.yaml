@@ -7,12 +7,21 @@ metadata:
     app.kubernetes.io/part-of: temporal-kind
 spec:
   parentRefs:
-    - name: temporal-local
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: temporal-local
       namespace: kgateway-system
       sectionName: temporal-ui
   hostnames:
     - temporal-ui.localhost
   rules:
-    - backendRefs:
-        - name: temporal-web
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: temporal-web
           port: 8080
+          weight: 1
