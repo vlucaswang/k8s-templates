@@ -9,6 +9,7 @@ load_versions
 need kind
 need kubectl
 need helm
+use_public_docker_config
 
 mkdir -p /tmp/temporal-kind
 

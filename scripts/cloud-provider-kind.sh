@@ -7,6 +7,7 @@ source "${SCRIPT_DIR}/lib.sh"
 
 load_versions
 need cloud-provider-kind
+use_public_docker_config
 
 mkdir -p "${ROOT_DIR}/tmp"
 pid_file="${ROOT_DIR}/tmp/cloud-provider-kind.pid"

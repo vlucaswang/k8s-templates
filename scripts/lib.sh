@@ -21,3 +21,15 @@ need() {
 kind_cluster_exists() {
   kind get clusters | grep -qx "${CLUSTER_NAME}"
 }
+
+use_public_docker_config() {
+  if [[ -n "${DOCKER_CONFIG:-}" ]]; then
+    return
+  fi
+
+  export DOCKER_CONFIG="${ROOT_DIR}/tmp/docker-config"
+  mkdir -p "${DOCKER_CONFIG}"
+  if [[ ! -f "${DOCKER_CONFIG}/config.json" ]]; then
+    printf '{}\n' > "${DOCKER_CONFIG}/config.json"
+  fi
+}
