@@ -59,8 +59,21 @@ kubectl wait --for=jsonpath='{.status.parents[0].conditions[?(@.type=="Accepted"
   grpcroute/temporal-frontend -n temporal --timeout=10m
 
 if [[ "${SKIP_LOADBALANCER_WAIT:-false}" != "true" ]]; then
-  kubectl wait --for=jsonpath='{.status.loadBalancer.ingress[0].ip}' \
-    service/temporal-local -n kgateway-system --timeout=10m
+  start="${SECONDS}"
+  while (( SECONDS - start < 600 )); do
+    lb_endpoint="$(kubectl -n kgateway-system get service temporal-local \
+      -o jsonpath='{.status.loadBalancer.ingress[0].ip}{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
+    if [[ -n "${lb_endpoint}" ]]; then
+      echo "service temporal-local LoadBalancer endpoint: ${lb_endpoint}"
+      break
+    fi
+    sleep 5
+  done
+  if [[ -z "${lb_endpoint:-}" ]]; then
+    kubectl -n kgateway-system get service temporal-local -o wide >&2 || true
+    echo "service temporal-local did not receive a LoadBalancer endpoint" >&2
+    exit 1
+  fi
 fi
 
 kubectl get applications -n "${ARGOCD_NAMESPACE}" || true
