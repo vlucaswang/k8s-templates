@@ -63,6 +63,8 @@ for file in "${ROOT_DIR}"/argocd/*.yaml; do
     "${file}" > "${rendered_argocd}/$(basename "${file}")"
 done
 
-kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/"
+kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/project.yaml"
+kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/helm-applicationset.yaml"
+kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/kustomize-applicationset.yaml"
 
 echo "Bootstrap submitted. Run: make wait"
