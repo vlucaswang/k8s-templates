@@ -18,7 +18,32 @@ if [[ -f "${pid_file}" ]] && kill -0 "$(cat "${pid_file}")" >/dev/null 2>&1; the
   exit 0
 fi
 
-nohup cloud-provider-kind --enable-lb-port-mapping >"${log_file}" 2>&1 &
-echo "$!" > "${pid_file}"
+start_cloud_provider_kind() {
+  if [[ "${1:-}" == "sudo" ]]; then
+    nohup sudo -n env "DOCKER_CONFIG=${DOCKER_CONFIG}" \
+      cloud-provider-kind --enable-lb-port-mapping >"${log_file}" 2>&1 &
+  else
+    nohup cloud-provider-kind --enable-lb-port-mapping >"${log_file}" 2>&1 &
+  fi
+  echo "$!" > "${pid_file}"
+}
+
+start_cloud_provider_kind
+sleep 2
+
+if ! kill -0 "$(cat "${pid_file}")" >/dev/null 2>&1; then
+  if grep -q 'please run this again with .*sudo' "${log_file}" && sudo -n true >/dev/null 2>&1; then
+    start_cloud_provider_kind sudo
+    sleep 2
+  fi
+fi
+
+if ! kill -0 "$(cat "${pid_file}")" >/dev/null 2>&1; then
+  cat "${log_file}" >&2
+  echo "cloud-provider-kind failed to stay running." >&2
+  echo "On macOS, run this target from a shell with sudo privileges or start cloud-provider-kind manually with --enable-lb-port-mapping." >&2
+  exit 1
+fi
+
 echo "cloud-provider-kind started with pid $(cat "${pid_file}")"
 echo "logs: ${log_file}"
