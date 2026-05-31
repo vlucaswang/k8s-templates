@@ -38,6 +38,8 @@ Bootstrap exceptions are intentionally small:
 
 ## Validation
 
+Test locally before pushing to remote so GitHub Actions is used to confirm the change, not to find basic failures.
+
 Before committing changes, run the strongest practical subset:
 
 ```sh
