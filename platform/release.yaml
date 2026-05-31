@@ -1,0 +1,16 @@
+apiVersion: platform.temporal.io/v1alpha1
+kind: PlatformReleasePolicy
+metadata:
+  name: temporal-platform
+spec:
+  tagPrefix: platform-v
+  releaseBranches:
+    - main
+  adoption:
+    mode: explicit-config-repo-version-bump
+    configCli: https://github.com/vlucaswang/temporal-gitops-config-cli
+  sharedContracts:
+    - Helm chart defaults are released from this repo.
+    - Cilium NetworkPolicies ship with platform charts.
+    - Prometheus ServiceMonitors ship with platform charts.
+    - cert-manager challenge annotations are platform defaults selected by config values.

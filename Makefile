@@ -5,7 +5,7 @@ SHELL := /usr/bin/env bash
 include versions.env
 export
 
-.PHONY: help bootstrap cloud-provider-kind local-git-repo port-forward stop-port-forward verify-localhost wait endpoints smoke validate delete status
+.PHONY: help bootstrap cloud-provider-kind local-git-repo port-forward stop-port-forward verify-localhost wait endpoints smoke validate delete status release-platform
 
 help:
 	@printf "Targets:\n"
@@ -20,6 +20,7 @@ help:
 	@printf "  make smoke      Run Temporal smoke checks\n"
 	@printf "  make validate   Validate local templates and scripts\n"
 	@printf "  make delete     Delete the kind cluster\n"
+	@printf "  make release-platform TAG=platform-vX.Y.Z  Validate and create a platform tag\n"
 
 bootstrap:
 	./scripts/bootstrap.sh
@@ -56,3 +57,7 @@ delete:
 
 status:
 	./scripts/status.sh
+
+release-platform:
+	@test -n "$(TAG)" || (echo "TAG=platform-vX.Y.Z is required" >&2; exit 1)
+	./scripts/release-platform.sh "$(TAG)"

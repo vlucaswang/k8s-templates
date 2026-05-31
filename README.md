@@ -88,6 +88,9 @@ The first bootstrap has dependency ordering that can take several minutes: CNPG 
 This repository is the platform repo: shared Kubernetes and Temporal defaults,
 managed through Argo CD and released by explicit platform tags.
 
+Platform release mechanics are documented in
+[docs/platform-releases.md](docs/platform-releases.md).
+
 Per-customer config repos should be generated with the TypeScript bootstrap CLI:
 
 ```sh
