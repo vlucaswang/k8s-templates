@@ -1,0 +1,18 @@
+{{- if and .Values.observability.serviceMonitor.enabled .Values.metrics.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: redis
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+    {{- with .Values.observability.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "redis.name" . }}
+  endpoints:
+    - port: metrics
+      interval: {{ .Values.observability.serviceMonitor.interval }}
+{{- end }}

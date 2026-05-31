@@ -91,6 +91,9 @@ managed through Argo CD and released by explicit platform tags.
 Platform release mechanics are documented in
 [docs/platform-releases.md](docs/platform-releases.md).
 
+The shared chart catalog pattern is documented in
+[docs/platform-catalog.md](docs/platform-catalog.md).
+
 Per-customer config repos should be generated with the TypeScript bootstrap CLI:
 
 ```sh

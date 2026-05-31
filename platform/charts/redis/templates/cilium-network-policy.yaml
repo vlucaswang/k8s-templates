@@ -1,0 +1,33 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: redis
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+spec:
+  endpointSelector:
+    matchLabels:
+      {{- include "redis.selectorLabels" . | nindent 6 }}
+  ingress:
+    - fromEndpoints:
+        {{- range .Values.networkPolicy.allowedNamespaces }}
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ . | quote }}
+        {{- end }}
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    {{- if and .Values.observability.serviceMonitor.enabled .Values.metrics.enabled }}
+    - fromEndpoints:
+        {{- range .Values.networkPolicy.monitoringNamespaces }}
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ . | quote }}
+        {{- end }}
+      toPorts:
+        - ports:
+            - port: "9121"
+              protocol: TCP
+    {{- end }}
+{{- end }}

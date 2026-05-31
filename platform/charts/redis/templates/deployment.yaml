@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "redis.name" . }}
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "redis.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "redis.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/part-of: temporal-platform
+    spec:
+      containers:
+        - name: redis
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          args:
+            - redis-server
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          ports:
+            - name: redis
+              containerPort: 6379
+          readinessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.metrics.enabled }}
+        - name: redis-exporter
+          image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}"
+          args:
+            - --redis.addr=redis://127.0.0.1:6379
+          ports:
+            - name: metrics
+              containerPort: 9121
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+        {{- end }}

@@ -1,0 +1,20 @@
+{{- if .Values.tls.certManager.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: redis
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/issuer-kind: {{ .Values.tls.certManager.issuerKind | quote }}
+    cert-manager.io/issuer-name: {{ .Values.tls.certManager.issuerName | quote }}
+spec:
+  secretName: redis-tls
+  issuerRef:
+    kind: {{ .Values.tls.certManager.issuerKind }}
+    name: {{ .Values.tls.certManager.issuerName }}
+  dnsNames:
+    {{- range .Values.tls.certManager.dnsNames }}
+    - {{ . | quote }}
+    {{- end }}
+{{- end }}

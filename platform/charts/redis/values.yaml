@@ -1,0 +1,45 @@
+replicaCount: 1
+
+image:
+  repository: redis
+  tag: 7.4-alpine
+
+metrics:
+  enabled: true
+  image:
+    repository: oliver006/redis_exporter
+    tag: v1.67.0
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 64Mi
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 128Mi
+
+networkPolicy:
+  enabled: true
+  allowedNamespaces:
+    - temporal
+  monitoringNamespaces:
+    - monitoring
+
+observability:
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    labels:
+      release: kube-prometheus-stack
+
+tls:
+  certManager:
+    enabled: false
+    issuerKind: ClusterIssuer
+    issuerName: self-signed
+    dnsNames: []

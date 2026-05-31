@@ -71,8 +71,11 @@ done
 
 kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/project.yaml"
 kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/helm-applicationset.yaml"
+kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/platform-catalog-applicationset.yaml"
 kubectl apply -n "${ARGOCD_NAMESPACE}" -f "${rendered_argocd}/kustomize-applicationset.yaml"
 kubectl -n "${ARGOCD_NAMESPACE}" annotate applicationset temporal-kind-helm \
+  bootstrap.temporal-kind/reconcile-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --overwrite
+kubectl -n "${ARGOCD_NAMESPACE}" annotate applicationset temporal-kind-platform-catalog \
   bootstrap.temporal-kind/reconcile-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --overwrite
 kubectl -n "${ARGOCD_NAMESPACE}" annotate applicationset temporal-kind-kustomize \
   bootstrap.temporal-kind/reconcile-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --overwrite

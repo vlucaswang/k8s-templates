@@ -16,6 +16,7 @@ if command -v ruby >/dev/null 2>&1; then
   done < <(find "${ROOT_DIR}" \
     -path "${ROOT_DIR}/.git" -prune -o \
     -path "${ROOT_DIR}/tmp" -prune -o \
+    -path "${ROOT_DIR}/platform/charts/*/templates" -prune -o \
     \( -name '*.yaml' -o -name '*.yml' \) -print)
   ruby -ryaml -e 'ARGV.each { |f| YAML.load_stream(File.read(f)) }' "${yaml_files[@]}"
 else
@@ -25,6 +26,7 @@ fi
 if command -v kubectl >/dev/null 2>&1; then
   for app in "${ROOT_DIR}"/gitops/apps/*; do
     [[ -d "${app}" ]] || continue
+    [[ -f "${app}/kustomization.yaml" ]] || continue
     kubectl kustomize "${app}" >/dev/null
   done
 else
@@ -58,6 +60,11 @@ if command -v helm >/dev/null 2>&1; then
     --namespace kgateway-system \
     --version "${KGATEWAY_VERSION}" \
     --values "${ROOT_DIR}/gitops/helm-values/kgateway.yaml" >/dev/null
+  helm template redis "${ROOT_DIR}/platform/charts/redis" \
+    --namespace redis >/dev/null
+  helm template redis "${ROOT_DIR}/platform/charts/redis" \
+    --namespace redis \
+    --values "${ROOT_DIR}/gitops/catalog-values/redis-local.yaml" >/dev/null
 else
   echo "helm not found; skipping Helm values validation"
 fi

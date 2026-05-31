@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: temporal-kind-kustomize
+  name: temporal-kind-platform-catalog
   namespace: argocd
 spec:
   goTemplate: true
@@ -10,26 +10,29 @@ spec:
   generators:
     - list:
         elements:
-          - name: gateway-api-crds
-            namespace: gateway-system
-            path: gitops/apps/gateway-api-crds
-          - name: temporal-database
-            namespace: temporal
-            path: gitops/apps/temporal-database
-          - name: temporal-edge
-            namespace: kgateway-system
-            path: gitops/apps/temporal-edge
+          - name: redis
+            namespace: redis
+            path: platform/charts/redis
+            valuesFile: redis-local.yaml
   template:
     metadata:
       name: '{{ .name }}'
       labels:
         app.kubernetes.io/part-of: temporal-kind
+        temporal.io/catalog-source: platform
     spec:
       project: temporal-kind
-      source:
-        repoURL: REPO_URL_PLACEHOLDER
-        targetRevision: REPO_REVISION_PLACEHOLDER
-        path: '{{ .path }}'
+      sources:
+        - repoURL: REPO_URL_PLACEHOLDER
+          targetRevision: REPO_REVISION_PLACEHOLDER
+          path: '{{ .path }}'
+          helm:
+            releaseName: '{{ .name }}'
+            valueFiles:
+              - $values/gitops/catalog-values/{{ .valuesFile }}
+        - repoURL: REPO_URL_PLACEHOLDER
+          targetRevision: REPO_REVISION_PLACEHOLDER
+          ref: values
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{ .namespace }}'
