@@ -61,6 +61,18 @@ make port-forward
 
 This exposes Temporal frontend on `localhost:7233`, Temporal UI on `localhost:8080`, Argo CD on `localhost:8443`, Redis on `localhost:6379`, and Postgres on `localhost:5432`.
 
+To verify localhost access:
+
+```sh
+VERIFY_LOCALHOST_MODE=port-forward make verify-localhost
+```
+
+When cloud-provider-kind is running with load-balancer port mapping, the kgateway entry points can be checked directly:
+
+```sh
+VERIFY_LOCALHOST_MODE=loadbalancer make verify-localhost
+```
+
 ## Cleanup
 
 ```sh

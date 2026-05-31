@@ -50,5 +50,13 @@ jobs:
         run: make bootstrap
       - name: Wait for workloads
         run: make wait
+      - name: Verify kgateway localhost access
+        env:
+          VERIFY_LOCALHOST_MODE: loadbalancer
+        run: make verify-localhost
+      - name: Verify fallback localhost access
+        env:
+          VERIFY_LOCALHOST_MODE: port-forward
+        run: make verify-localhost
       - name: Smoke test Temporal
         run: make smoke
