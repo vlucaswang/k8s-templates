@@ -63,7 +63,7 @@ wait_for_http() {
   return 1
 }
 
-mapped_host_port() {
+mapped_host_ports() {
   local container_port="$1"
   local regex=":([0-9]+)->${container_port}/tcp"
   local segment
@@ -75,11 +75,8 @@ mapped_host_port() {
   while IFS= read -r segment; do
     if [[ "${segment}" =~ ${regex} ]]; then
       echo "${BASH_REMATCH[1]}"
-      return
     fi
   done < <(docker ps --format '{{.Ports}}' | tr ',' '\n')
-
-  return 1
 }
 
 service_node_port() {
@@ -91,20 +88,68 @@ service_node_port() {
     -o "jsonpath={.spec.ports[?(@.port==${service_port})].nodePort}"
 }
 
-loadbalancer_host_port() {
+loadbalancer_host_ports() {
   local service_port="$1"
   local node_port
 
-  if mapped_host_port "${service_port}"; then
-    return
-  fi
+  mapped_host_ports "${service_port}" || true
 
   node_port="$(service_node_port kgateway-system temporal-local "${service_port}")"
   if [[ -n "${node_port}" ]]; then
-    mapped_host_port "${node_port}"
-  else
-    return 1
+    mapped_host_ports "${node_port}" || true
   fi
+}
+
+diagnose_loadbalancer_ports() {
+  echo "temporal-local service:" >&2
+  kubectl -n kgateway-system get service temporal-local -o wide >&2 || true
+  echo "docker port mappings:" >&2
+  docker ps --format 'table {{.Names}}\t{{.Ports}}' >&2 || true
+}
+
+try_http_ports() {
+  local service_port="$1"
+  local default_port="$2"
+  local name="$3"
+  local host_header="$4"
+  local port
+  local seen=" "
+
+  for port in "${default_port}" $(loadbalancer_host_ports "${service_port}"); do
+    if [[ "${seen}" == *" ${port} "* ]]; then
+      continue
+    fi
+    seen+="${port} "
+
+    if wait_for_http "http://127.0.0.1:${port}/" "${name}" "${host_header}" 10; then
+      return
+    fi
+  done
+
+  diagnose_loadbalancer_ports
+  return 1
+}
+
+try_tcp_ports() {
+  local service_port="$1"
+  local default_port="$2"
+  local name="$3"
+  local port
+  local seen=" "
+
+  for port in "${default_port}" $(loadbalancer_host_ports "${service_port}"); do
+    if [[ "${seen}" == *" ${port} "* ]]; then
+      continue
+    fi
+    seen+="${port} "
+
+    if wait_for_tcp 127.0.0.1 "${port}" "${name}" 10; then
+      return
+    fi
+  done
+
+  diagnose_loadbalancer_ports
+  return 1
 }
 
 case "${mode}" in
@@ -112,27 +157,8 @@ case "${mode}" in
     ui_port="${TEMPORAL_UI_PORT:-8080}"
     frontend_port="${TEMPORAL_FRONTEND_PORT:-7233}"
 
-    if ! wait_for_http "http://localhost:${ui_port}/" "Temporal UI via kgateway LoadBalancer" "temporal-ui.localhost" 10; then
-      if mapped_ui_port="$(loadbalancer_host_port 8080)"; then
-        ui_port="${mapped_ui_port}"
-        wait_for_http "http://localhost:${ui_port}/" "Temporal UI via kgateway LoadBalancer mapped port" "temporal-ui.localhost"
-      else
-        echo "docker port mappings:" >&2
-        docker ps --format 'table {{.Names}}\t{{.Ports}}' >&2 || true
-        exit 1
-      fi
-    fi
-
-    if ! wait_for_tcp localhost "${frontend_port}" "Temporal frontend via kgateway LoadBalancer" 10; then
-      if mapped_frontend_port="$(loadbalancer_host_port 7233)"; then
-        frontend_port="${mapped_frontend_port}"
-        wait_for_tcp localhost "${frontend_port}" "Temporal frontend via kgateway LoadBalancer mapped port"
-      else
-        echo "docker port mappings:" >&2
-        docker ps --format 'table {{.Names}}\t{{.Ports}}' >&2 || true
-        exit 1
-      fi
-    fi
+    try_http_ports 8080 "${ui_port}" "Temporal UI via kgateway LoadBalancer" "temporal-ui.localhost" || exit 1
+    try_tcp_ports 7233 "${frontend_port}" "Temporal frontend via kgateway LoadBalancer" || exit 1
     ;;
   port-forward)
     "${ROOT_DIR}/scripts/port-forward.sh"
