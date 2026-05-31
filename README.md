@@ -94,7 +94,7 @@ Platform release mechanics are documented in
 Per-customer config repos should be generated with the TypeScript bootstrap CLI:
 
 ```sh
-npx temporal-gitops-config-cli bootstrap
+npx github:vlucaswang/temporal-gitops-config-cli bootstrap
 ```
 
 The CLI repo contains the central operating model documentation for the

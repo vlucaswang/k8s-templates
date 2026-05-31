@@ -35,7 +35,7 @@ format before running the repository validation suite.
 In each customer config repo, use the TypeScript CLI:
 
 ```sh
-temporal-gitops-config platform:bump \
+npx github:vlucaswang/temporal-gitops-config-cli platform:bump \
   --repo ./customer-temporal-config \
   --platform-version platform-v1.4.0
 ```
