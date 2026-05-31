@@ -82,3 +82,20 @@ make delete
 ## Notes
 
 The first bootstrap has dependency ordering that can take several minutes: CNPG must install its CRDs, PostgreSQL must initialize, Temporal schema jobs must run, and then Temporal services become ready. Argo CD automated sync retries handle transient ordering failures.
+
+## Two-Repo GitOps Direction
+
+This repository is the platform repo: shared Kubernetes and Temporal defaults,
+managed through Argo CD and released by explicit platform tags.
+
+Per-customer config repos should be generated with the TypeScript bootstrap CLI:
+
+```sh
+npx temporal-gitops-config-cli bootstrap
+```
+
+The CLI repo contains the central operating model documentation for the
+platform/config split, UAT and Prod config layout, cloud/TLS selections, and the
+platform version bump workflow:
+
+<https://github.com/vlucaswang/temporal-gitops-config-cli>
