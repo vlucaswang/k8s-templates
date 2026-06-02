@@ -30,6 +30,29 @@ The local kind scenario disables Redis `ServiceMonitor` through
 cluster. The chart default still renders the ServiceMonitor so platform releases
 carry the production observability contract.
 
+## Platform Repo Diagram
+
+```mermaid
+flowchart TB
+  platform["k8s-templates platform repo"]
+  catalog["platform/charts/*\nshared chart catalog"]
+  redis["redis chart\nfirst catalog entry"]
+  defaults["production defaults\nvalues.yaml"]
+  contracts["baked platform contracts\nCiliumNetworkPolicy\nServiceMonitor\ncert-manager Certificate hook"]
+  appset["argocd/platform-catalog-applicationset.yaml"]
+  release["platform release tag\nplatform-vX.Y.Z"]
+  configRepos["customer config repos\npin release + provide values"]
+
+  platform --> catalog
+  catalog --> redis
+  redis --> defaults
+  redis --> contracts
+  catalog --> appset
+  defaults --> release
+  contracts --> release
+  release --> configRepos
+```
+
 ## Adding Charts
 
 New platform charts should follow the Redis layout:
