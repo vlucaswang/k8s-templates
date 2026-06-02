@@ -65,6 +65,7 @@ if command -v helm >/dev/null 2>&1; then
   helm template redis "${ROOT_DIR}/platform/charts/redis" \
     --namespace redis \
     --values "${ROOT_DIR}/gitops/catalog-values/redis-local.yaml" >/dev/null
+  "${ROOT_DIR}/scripts/validate-platform-catalog.sh"
 else
   echo "helm not found; skipping Helm values validation"
 fi

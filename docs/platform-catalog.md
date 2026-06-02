@@ -67,3 +67,7 @@ platform/charts/<name>/
 After adding a chart, render both default and local override values from
 `scripts/validate.sh`, then add the chart to
 `argocd/platform-catalog-applicationset.yaml`.
+
+`scripts/validate-platform-catalog.sh` enforces the shared chart contract. Every
+platform chart must render a `CiliumNetworkPolicy`, a `ServiceMonitor`, and a
+cert-manager `Certificate` with issuer annotations when TLS is enabled.
