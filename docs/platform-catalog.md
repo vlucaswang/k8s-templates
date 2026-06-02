@@ -9,8 +9,9 @@ of environment inputs needed to run that baseline. Fixes should move through
 platform chart releases and version bumps, not through copied manifests in every
 customer repo.
 
-Charts live under `platform/charts/`. Each catalog chart should carry the same
-operational contracts:
+Charts live under `platform/charts/` and are listed in
+`platform/catalog.yaml`. Each catalog chart should carry the same operational
+contracts:
 
 - production-tested default values in `values.yaml`
 - Cilium NetworkPolicies enabled by default
@@ -65,9 +66,11 @@ platform/charts/<name>/
 ```
 
 After adding a chart, render both default and local override values from
-`scripts/validate.sh`, then add the chart to
-`argocd/platform-catalog-applicationset.yaml`.
+`scripts/validate.sh`, add the chart to `platform/catalog.yaml`, then mirror the
+catalog entry in `argocd/platform-catalog-applicationset.yaml`.
 
 `scripts/validate-platform-catalog.sh` enforces the shared chart contract. Every
 platform chart must render a `CiliumNetworkPolicy`, a `ServiceMonitor`, and a
-cert-manager `Certificate` with issuer annotations when TLS is enabled.
+cert-manager `Certificate` with issuer annotations when TLS is enabled. It also
+checks that `argocd/platform-catalog-applicationset.yaml` stays in sync with
+`platform/catalog.yaml`.

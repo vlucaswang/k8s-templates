@@ -8,6 +8,7 @@ pinning a platform release tag such as `platform-v1.4.0`.
 Platform releases include shared behavior that should be identical across
 clusters and clouds:
 
+- `platform/catalog.yaml` chart metadata
 - Helm chart defaults
 - Cilium NetworkPolicies
 - Prometheus ServiceMonitors

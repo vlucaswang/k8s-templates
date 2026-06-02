@@ -10,6 +10,7 @@ spec:
     mode: explicit-config-repo-version-bump
     configCli: https://github.com/vlucaswang/temporal-gitops-config-cli
   sharedContracts:
+    - platform/catalog.yaml is the machine-readable chart catalog for releases.
     - Helm chart defaults are released from this repo.
     - Cilium NetworkPolicies ship with platform charts.
     - Prometheus ServiceMonitors ship with platform charts.

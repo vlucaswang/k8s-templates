@@ -1,0 +1,16 @@
+apiVersion: platform.temporal.io/v1alpha1
+kind: PlatformCatalog
+metadata:
+  name: temporal-platform
+spec:
+  charts:
+    - name: redis
+      path: platform/charts/redis
+      namespace: redis
+      localValuesFile: redis-local.yaml
+      configValuesFile: redis.yaml
+      contracts:
+        ciliumNetworkPolicy: true
+        serviceMonitor: true
+        certManagerCertificate: true
+        certManagerIssuerAnnotations: true
