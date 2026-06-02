@@ -35,23 +35,56 @@ carry the production observability contract.
 
 ```mermaid
 flowchart TB
-  platform["k8s-templates platform repo"]
-  catalog["platform/charts/*\nshared chart catalog"]
-  redis["redis chart\nfirst catalog entry"]
-  defaults["production defaults\nvalues.yaml"]
-  contracts["baked platform contracts\nCiliumNetworkPolicy\nServiceMonitor\ncert-manager Certificate hook"]
-  appset["argocd/platform-catalog-applicationset.yaml"]
-  release["platform release tag\nplatform-vX.Y.Z"]
-  configRepos["customer config repos\npin release + provide values"]
+  subgraph platform["k8s-templates platform repo"]
+    manifest["platform/catalog.yaml\nmachine-readable chart list"]
+    charts["platform/charts/*\nshared Helm charts"]
+    redis["platform/charts/redis\nfirst catalog entry"]
+    defaults["values.yaml\nproduction defaults"]
+    contracts["chart contracts\nCiliumNetworkPolicy\nServiceMonitor\ncert-manager Certificate"]
+    appset["argocd/platform-catalog-applicationset.yaml\nArgo CD generator mirror"]
+    validation["scripts/validate-platform-catalog.sh\ncontract and appset sync checks"]
+    releaseConfig["platform/release.yaml\nrelease contract"]
+  end
 
-  platform --> catalog
-  catalog --> redis
+  release["annotated platform tag\nplatform-vX.Y.Z"]
+  configRepos["customer config repos\npin tag and provide values"]
+
+  manifest --> charts
+  charts --> redis
   redis --> defaults
   redis --> contracts
-  catalog --> appset
-  defaults --> release
-  contracts --> release
+  manifest --> appset
+  manifest --> validation
+  appset --> validation
+  contracts --> validation
+  validation --> release
+  releaseConfig --> release
   release --> configRepos
+```
+
+## Chart Contract Flow
+
+```mermaid
+sequenceDiagram
+  participant Engineer
+  participant PlatformRepo as Platform repo
+  participant Validator as Local validation
+  participant GitHub as GitHub Actions
+  participant ConfigRepo as Customer config repo
+  participant ArgoCD as Argo CD
+
+  Engineer->>PlatformRepo: Add or update chart defaults
+  Engineer->>PlatformRepo: Update platform/catalog.yaml
+  Engineer->>Validator: make validate
+  Validator-->>Engineer: Chart contracts pass locally
+  Engineer->>PlatformRepo: Push platform change
+  PlatformRepo->>GitHub: Run validate and temporal-smoke
+  GitHub-->>PlatformRepo: CI passes
+  Engineer->>PlatformRepo: Tag platform-vX.Y.Z
+  ConfigRepo->>ConfigRepo: Bump targetRevision
+  ArgoCD->>PlatformRepo: Read chart at platform-vX.Y.Z
+  ArgoCD->>ConfigRepo: Read values/<env>/*.yaml
+  ArgoCD-->>ConfigRepo: Reconcile UAT, then Prod
 ```
 
 ## Adding Charts
